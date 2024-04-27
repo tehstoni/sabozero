@@ -8,6 +8,7 @@ reqwest = "0.12.4"
 winapi = { version = "0.3.9", features = ["processthreadsapi", "winbase", "memoryapi"] }
 ntapi = "0.4.1"
 tokio = { version = "1", features = ["full"] } # Ensures full async runtime is included
+rand = "0.8.4"
 
 [profile.release]
 opt-level = 3

