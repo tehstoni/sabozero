@@ -1,0 +1,20 @@
+[package]
+name = "sabozero"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = "0.12.4"
+winapi = { version = "0.3.9", features = ["processthreadsapi", "winbase", "memoryapi"] }
+ntapi = "0.4.1"
+tokio = { version = "1", features = ["full"] } # Ensures full async runtime is included
+
+[profile.release]
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+
+[lib]
+name = "sabozero"
+crate-type = ["cdylib"]
