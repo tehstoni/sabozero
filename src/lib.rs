@@ -47,7 +47,6 @@ async fn get_payload_from_url(url: &str) -> Result<Vec<u8>, Box<dyn Error>> {
     if response.status().is_success() {
         let mut payload = Vec::new();
         while let Some(chunk) = response.chunk().await? {
-            println!("Received {} bytes", chunk.len());
             payload.extend_from_slice(&chunk);
         }
         Ok(payload)
